@@ -91,7 +91,6 @@ static unsigned int d_flag;		/* delay factor between reads */
 static struct timeval time_start;
 
 #define T_INC 32
-#define S_BUF 128
 
 static unsigned int sys_page_size = 4096;
 
@@ -156,20 +155,9 @@ static void *allocate_buffer(size_t size)
 static int bb_output (blk_t bad, enum error_types error_type)
 {
 	errcode_t errcode;
-	char status_buf[S_BUF];
 
 	if (ext2fs_badblocks_list_test(bb_list, bad))
 		return 0;
-
-	if (v_flag > 1) {
-		memset(status_buf, ' ', S_BUF-1);
-		status_buf[S_BUF-1] = 0;
-		fputs(status_buf, stderr);
-		memset(status_buf, '\b', S_BUF-1);
-		status_buf[S_BUF-1] = 0;      /* Not strictly needed but safe */
-		fputs(status_buf, stderr);
-		fflush (stderr);
-	}
 
 	fprintf(out, "%lu\n", (unsigned long) bad);
 	fflush(out);
@@ -230,9 +218,9 @@ static float calc_percent(unsigned long current, unsigned long total) {
 static void print_status(void)
 {
 	struct timeval time_end;
-	char diff_buf[32], line_buf[S_BUF];
+	char diff_buf[32], line_buf[128];
 #ifdef HAVE_MBSTOWCS
-	wchar_t wline_buf[S_BUF];
+	wchar_t wline_buf[128];
 #endif
 	int len;
 
